@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grant Application Generator - IT TAKES TWO</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .confidence-excellent { background: linear-gradient(135deg, #10b981, #059669); }
+        .confidence-strong { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .confidence-moderate { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .confidence-weak { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const organizationData = {
+            name: "IT TAKES TWO, INC",
+            mission: "A 501(c)(3) nonprofit organization dedicated to enriching the lives of young people and increasing opportunities through scholarships, life skills, and educational programming.",
+            founded: 2012,
+            taxId: "45-4734503",
+            serviceArea: "Maryland (Anne Arundel, Baltimore, Charles, Prince George's, Montgomery counties, and Baltimore City)",
+            yearsOfOperation: new Date().getFullYear() - 2012,
+            keyPrograms: {
+                p4gyp: {
+                    name: "Positioned for Greatness Youth Program",
+                    grades: "5th-12th",
+                    capacity: "20-25 students annually",
+                    duration: "9 months (March-October)",
+                    pillars: ["Social and Emotional Learning", "College, Career, and Skills", "Service and Leadership"],
+                    outcomes2024: {
+                        completion: "79%",
+                        schoolChoiceTour: "47%",
+                        communityService: "62.5 hours (181.7% increase)",
+                        entrepreneurship: "20% considering business, 20% have existing business",
+                        investmentEducation: "86% improved understanding, 14% opened accounts"
+                    }
+                },
+                scholarship: {
+                    name: "Tools for Success Scholarship",
+                    totalAwarded: "$14,750 lifetime",
+                    recipients: "40 scholarships to date",
+                    fulfillment: "91% full distribution",
+                    focus: "Students in single parent homes"
+                }
+            },
+            partnerships: [
+                "New Hope Academy", "Equity Now, Inc.", "Dave & Buster's Capitol Heights",
+                "Legends Charter School", "Hillcrest Heights Elementary School"
+            ],
+            recentAchievements: [
+                "75% increase in scholarship funding (2024)",
+                "163% increase in grant funding (2024)",
+                "Launched Future Millionaires: Youth Investment Summit",
+                "First-ever Youth & Community Awards Brunch"
+            ]
+        };
+
+        const funderDatabase = {
+            wk_kellogg: {
+                name: "W.K. Kellogg Foundation",
+                type: "Private Foundation",
+                focusAreas: ["Youth Development", "Education", "Financial Security", "Racial Equity"],
+                geographicFocus: ["United States", "Michigan", "Mississippi", "New Mexico", "New Orleans"],
+                typicalRange: "$25,000-$150,000",
+                applicationProcess: "Rolling LOI through Fluxx system",
+                deadline: "Rolling - No deadlines",
+                responseTime: "30 days for LOI, 60 days for full proposal",
+                website: "https://www.wkkf.org/grantseekers/",
+                matchFactors: {
+                    programAlignment: 38,
+                    geographicMatch: 16,
+                    organizationalCapacity: 18,
+                    financialFit: 8,
+                    accessibility: 8
+                },
+                totalScore: 88,
+                tier: "excellent"
+            },
+            cclc_maryland: {
+                name: "21st Century Community Learning Centers (Maryland)",
+                type: "Federal/State Grant",
+                focusAreas: ["After-school Programs", "Academic Enrichment", "Family Engagement"],
+                geographicFocus: ["Maryland"],
+                typicalRange: "$50,000-$300,000 per year",
+                applicationProcess: "Competitive state application",
+                deadline: "Annual - Contact MSDE for 2025 dates",
+                responseTime: "3-6 months",
+                website: "https://marylandpublicschools.org/programs/Pages/21st-CCLC/index.aspx",
+                matchFactors: {
+                    programAlignment: 40,
+                    geographicMatch: 20,
+                    organizationalCapacity: 16,
+                    financialFit: 8,
+                    accessibility: 8
+                },
+                totalScore: 92,
+                tier: "excellent"
+            },
+            target_foundation: {
+                name: "Target Foundation",
+                type: "Corporate Foundation",
+                focusAreas: ["Education", "Economic Opportunity", "Community Development"],
+                geographicFocus: ["United States"],
+                typicalRange: "$10,000-$100,000",
+                applicationProcess: "Invitation only",
+                deadline: "N/A - Invitation only",
+                responseTime: "Varies",
+                website: "https://corporate.target.com/sustainability-governance/target-foundation",
+                matchFactors: {
+                    programAlignment: 32,
+                    geographicMatch: 14,
+                    organizationalCapacity: 17,
+                    financialFit: 2,
+                    accessibility: 0
+                },
+                totalScore: 65,
+                tier: "moderate"
+            }
+        };
+
+        const GrantApplicationGenerator = () => {
+            const [selectedFunder, setSelectedFunder] = useState('');
+            const [requestAmount, setRequestAmount] = useState('');
+            const [projectFocus, setProjectFocus] = useState('');
+            const [generatedContent, setGeneratedContent] = useState(null);
+            const [confidenceScore, setConfidenceScore] = useState(null);
+
+            const calculateConfidenceScore = (funderId) => {
+                if (!funderId || !funderDatabase[funderId]) return null;
+                return funderDatabase[funderId];
+            };
+
+            const generateContent = () => {
+                const funder = funderDatabase[selectedFunder];
+                if (!funder) return;
+
+                const amount = parseInt(requestAmount);
+                let content = {};
+
+                content.executiveSummary = `IT TAKES TWO, INC respectfully requests $${amount.toLocaleString()} from the ${funder.name} to support our Positioned for Greatness Youth Program (P4GYP). Since 2017, P4GYP has served 200+ students in grades 5-12 across Maryland, achieving a 79% completion rate and demonstrating measurable impact in ${projectFocus}. This ${organizationData.yearsOfOperation}-year-old organization has awarded over $14,750 in scholarships and maintains strong community partnerships with organizations like New Hope Academy and Equity Now, Inc.`;
+
+                if (selectedFunder === 'wk_kellogg') {
+                    content.needsStatement = `Maryland youth face significant barriers to educational and economic success. Only 47% of Maryland high school graduates meet college readiness benchmarks, while 43% of teens lack basic financial literacy skills. In Prince George's County, where IT TAKES TWO operates, these challenges are compounded by limited access to comprehensive youth development programs. Our target population—students from underresourced communities—particularly need support in developing the social-emotional skills, financial knowledge, and leadership capabilities that lead to long-term success.`;
+                } else if (selectedFunder === 'cclc_maryland') {
+                    content.needsStatement = `After-school hours represent a critical opportunity to support student achievement, yet many Maryland students lack access to quality programming during these hours. Research shows that students in high-quality after-school programs demonstrate improved academic performance, better school attendance, and stronger social-emotional skills. In our service area, students particularly need programming that combines academic enrichment with life skills development and family engagement—exactly what the 21st Century Community Learning Centers program is designed to support.`;
+                } else {
+                    content.needsStatement = `Young people in Maryland's underserved communities face multiple barriers to educational and economic success. Without comprehensive support systems, many students struggle to develop the skills and confidence needed to pursue post-secondary education or enter the workforce successfully. Our programming addresses these gaps by providing structured mentorship, financial literacy education, and leadership development opportunities.`;
+                }
+
+                content.programDescription = `P4GYP operates as a comprehensive 9-month program serving 20-25 students annually. Our three-pillar approach includes: (1) Social and Emotional Learning - building hope, resilience, and self-awareness through evidence-based practices; (2) College, Career, and Skills - providing financial literacy, entrepreneurship education, and career exploration; and (3) Service and Leadership - developing servant leaders through hands-on community engagement. In 2024, participants achieved an 86% improvement in investment understanding, with 14% opening custodial accounts and completing 62.5 community service hours.`;
+
+                content.outcomes = `Expected outcomes include: 80% of students demonstrating growth in hope and confidence measures, 75% completing career exploration portfolios with clear post-secondary plans, 70% showing improved financial literacy through pre/post assessments, and 100% participating in meaningful community service projects. We will measure success through family interviews, workshop assessments, and longitudinal tracking of academic and personal development indicators.`;
+
+                const staffCost = Math.round(amount * 0.65);
+                const programCost = Math.round(amount * 0.20);
+                const materialsCost = Math.round(amount * 0.10);
+                const adminCost = amount - staffCost - programCost - materialsCost;
+
+                content.budget = `Total Project Investment: $${amount.toLocaleString()}
+- Program Staff & Coordination (65%): $${staffCost.toLocaleString()}
+- Workshops & Guest Speakers (20%): $${programCost.toLocaleString()}
+- Materials & Transportation (10%): $${materialsCost.toLocaleString()}
+- Administrative Support (5%): $${adminCost.toLocaleString()}`;
+
+                content.sustainability = `IT TAKES TWO demonstrates strong organizational sustainability through diversified funding including individual donors, corporate partnerships, and participant fees ($50-75 annually). Our 12-year track record includes 91% scholarship fulfillment and growing community support. Strategic partnerships with New Hope Academy, Equity Now, and local businesses provide in-kind support that extends program value. This funding will strengthen our capacity to serve more students while maintaining program quality and building toward long-term sustainability.`;
+
+                setGeneratedContent(content);
+            };
+
+            useEffect(() => {
+                if (selectedFunder) {
+                    setConfidenceScore(calculateConfidenceScore(selectedFunder));
+                }
+            }, [selectedFunder]);
+
+            const getConfidenceClass = (score) => {
+                if (score >= 90) return 'confidence-excellent';
+                if (score >= 75) return 'confidence-strong';
+                if (score >= 60) return 'confidence-moderate';
+                return 'confidence-weak';
+            };
+
+            const getConfidenceLabel = (score) => {
+                if (score >= 90) return 'Excellent Fit';
+                if (score >= 75) return 'Strong Fit';
+                if (score >= 60) return 'Moderate Fit';
+                return 'Weak Fit';
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50 py-8">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="text-center mb-8">
+                            <h1 className="text-4xl font-bold text-gray-900 mb-2">Grant Application Generator</h1>
+                            <p className="text-xl text-gray-600">Automated grant writing for {organizationData.name}</p>
+                            <p className="text-sm text-gray-500 mt-2">Founded {organizationData.founded} • {organizationData.yearsOfOperation} years of impact • Maryland-based 501(c)(3)</p>
+                        </div>
+
+                        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+                            <h2 className="text-2xl font-semibold mb-6">Application Configuration</h2>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Select Funder
+                                    </label>
+                                    <select 
+                                        value={selectedFunder} 
+                                        onChange={(e) => setSelectedFunder(e.target.value)}
+                                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    >
+                                        <option value="">Choose a funder...</option>
+                                        {Object.entries(funderDatabase).map(([key, funder]) => (
+                                            <option key={key} value={key}>
+                                                {funder.name} ({funder.type})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Funding Request Amount
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        value={requestAmount}
+                                        onChange={(e) => setRequestAmount(e.target.value)}
+                                        placeholder="50000"
+                                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Project Focus
+                                    </label>
+                                    <select 
+                                        value={projectFocus} 
+                                        onChange={(e) => setProjectFocus(e.target.value)}
+                                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    >
+                                        <option value="">Select focus area...</option>
+                                        <option value="financial literacy and entrepreneurship">Financial Literacy & Entrepreneurship</option>
+                                        <option value="leadership development and community service">Leadership & Community Service</option>
+                                        <option value="college and career readiness">College & Career Readiness</option>
+                                        <option value="social-emotional learning">Social-Emotional Learning</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button 
+                                onClick={generateContent}
+                                disabled={!selectedFunder || !requestAmount || !projectFocus}
+                                className="mt-6 w-full bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+                            >
+                                Generate Grant Application Draft
+                            </button>
+                        </div>
+
+                        {confidenceScore && (
+                            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+                                <h2 className="text-2xl font-semibold mb-4">Funder Fit Analysis</h2>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <div className={`${getConfidenceClass(confidenceScore.totalScore)} text-white p-6 rounded-lg`}>
+                                            <div className="text-center">
+                                                <div className="text-4xl font-bold">{confidenceScore.totalScore}/100</div>
+                                                <div className="text-xl font-medium">{getConfidenceLabel(confidenceScore.totalScore)}</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="mt-4 space-y-2">
+                                            <div className="flex justify-between">
+                                                <span>Program Alignment:</span>
+                                                <span>{confidenceScore.matchFactors.programAlignment}/40</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Geographic Match:</span>
+                                                <span>{confidenceScore.matchFactors.geographicMatch}/20</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Organizational Capacity:</span>
+                                                <span>{confidenceScore.matchFactors.organizationalCapacity}/20</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Financial Fit:</span>
+                                                <span>{confidenceScore.matchFactors.financialFit}/10</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Application Access:</span>
+                                                <span>{confidenceScore.matchFactors.accessibility}/10</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h3 className="font-semibold mb-3">Funder Details</h3>
+                                        <div className="space-y-2 text-sm">
+                                            <div><strong>Type:</strong> {confidenceScore.type}</div>
+                                            <div><strong>Focus Areas:</strong> {confidenceScore.focusAreas.join(', ')}</div>
+                                            <div><strong>Typical Range:</strong> {confidenceScore.typicalRange}</div>
+                                            <div><strong>Application Process:</strong> {confidenceScore.applicationProcess}</div>
+                                            <div><strong>Deadline:</strong> {confidenceScore.deadline}</div>
+                                            <div><strong>Response Time:</strong> {confidenceScore.responseTime}</div>
+                                        </div>
+                                        
+                                        <a 
+                                            href={confidenceScore.website} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="inline-block mt-4 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded text-sm"
+                                        >
+                                            Visit Funder Website →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {generatedContent && (
+                            <div className="space-y-6">
+                                {Object.entries({
+                                    'Executive Summary': generatedContent.executiveSummary,
+                                    'Statement of Need': generatedContent.needsStatement,
+                                    'Program Description': generatedContent.programDescription,
+                                    'Expected Outcomes': generatedContent.outcomes,
+                                    'Budget Overview': generatedContent.budget,
+                                    'Sustainability Plan': generatedContent.sustainability
+                                }).map(([title, content]) => (
+                                    <div key={title} className="bg-white rounded-lg shadow-lg p-6">
+                                        <h3 className="text-xl font-semibold mb-4 text-gray-900">{title}</h3>
+                                        <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                                            {content}
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                                    <h3 className="text-lg font-semibold text-yellow-800 mb-3">📋 Next Steps Required</h3>
+                                    <ul className="text-yellow-700 space-y-2">
+                                        <li>• Review and customize content for specific funder requirements</li>
+                                        <li>• Add current program data and recent success stories</li>
+                                        <li>• Prepare required attachments (budget details, letters of support, etc.)</li>
+                                        <li>• Conduct final review with program staff and board leadership</li>
+                                        <li>• Submit through funder's preferred application system</li>
+                                        <li>• Schedule follow-up and relationship building activities</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<GrantApplicationGenerator />, document.getElementById('root'));
+    </script>
+</body>
+</html>
